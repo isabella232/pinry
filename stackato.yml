@@ -1,0 +1,16 @@
+name: pinry
+instances: 1
+framework:
+  type: python
+mem: 128
+services:
+  ${name}-db: mysql
+hooks:
+  post-staging:
+    - python manage.py syncdb --noinput
+    - python manage.py migrate --noinput
+processes:
+  web: gunicorn wsgi:application -b 0.0.0.0:$PORT
+ignores:
+  - .git
+  - development.db
