@@ -1,0 +1,11 @@
+name: pinry
+instances: 1
+framework:
+  type: python
+mem: 128
+hooks:
+  post-staging:
+    - python manage.py syncdb --noinput
+    - python manage.py migrate --noinput
+services:
+  ${name}-db: mysql
