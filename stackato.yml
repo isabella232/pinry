@@ -9,7 +9,4 @@ hooks:
     - python manage.py migrate --noinput
 services:
   ${name}-db: mysql
-ignores:
-  - .git
-  - *.db
-  
+ignores: ["dev.db", ".git"]
