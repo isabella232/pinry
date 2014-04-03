@@ -49,7 +49,7 @@ $(window).load(function() {
         }
 
         // Edit pin if pencil icon clicked
-        $('.icon-pencil').each(function() {
+        $('.glyphicon-pencil').each(function() {
             var thisPin = $(this);
             $(this).off('click');
             $(this).click(function() {
@@ -59,7 +59,7 @@ $(window).load(function() {
         });
 
         // Delete pin if trash icon clicked
-        $('.icon-trash').each(function() {
+        $('.glyphicon-trash').each(function() {
             var thisPin = $(this);
             $(this).off('click');
             $(this).click(function() {
@@ -91,6 +91,14 @@ $(window).load(function() {
         blockContainer.css('height', colHeights.sort().slice(-1)[0]);
     }
 
+    /**
+     * On scroll load more pins from the server
+     */
+    window.scrollHandler = function() {
+        var windowPosition = $(window).scrollTop() + $(window).height();
+        var bottom = $(document).height() - 100;
+        if(windowPosition > bottom) loadPins();
+    }
 
     /**
      * Load our pins using the pins template into our UI, be sure to define a
@@ -138,11 +146,7 @@ $(window).load(function() {
                     $('body').append(theEnd);
                 }
             } else {
-                $(window).scroll(function() {
-                    var windowPosition = $(window).scrollTop() + $(window).height();
-                    var bottom = $(document).height() - 100;
-                    if(windowPosition > bottom) loadPins();
-                });
+                $(window).scroll(scrollHandler);
             }
         });
 

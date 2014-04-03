@@ -3,6 +3,7 @@ from django.contrib.auth.models import Permission
 from django.core.files.images import ImageFile
 from django.db.models.query import QuerySet
 from django.test import TestCase
+from django_images.models import Thumbnail
 
 import factory
 from taggit.models import Tag
@@ -15,6 +16,8 @@ TEST_IMAGE_PATH = 'logo.png'
 
 
 class UserFactory(factory.Factory):
+    FACTORY_FOR = User
+
     username = factory.Sequence(lambda n: 'user_{}'.format(n))
     email = factory.Sequence(lambda n: 'user_{}@example.com'.format(n))
 
@@ -29,14 +32,25 @@ class UserFactory(factory.Factory):
 
 
 class TagFactory(factory.Factory):
+    FACTORY_FOR = Tag
+
     name = factory.Sequence(lambda n: 'tag_{}'.format(n))
 
 
 class ImageFactory(factory.Factory):
+    FACTORY_FOR = Image
+
     image = factory.LazyAttribute(lambda a: ImageFile(open(TEST_IMAGE_PATH, 'rb')))
+
+    @factory.post_generation()
+    def create_thumbnails(self, create, extracted, **kwargs):
+        for size in settings.IMAGE_SIZES.keys():
+            Thumbnail.objects.get_or_create_at_size(self.pk, size)
 
 
 class PinFactory(factory.Factory):
+    FACTORY_FOR = Pin
+
     submitter = factory.SubFactory(UserFactory)
     image = factory.SubFactory(ImageFactory)
 
@@ -54,7 +68,9 @@ class PinFactory(factory.Factory):
 
 class PinFactoryTest(TestCase):
     def test_default_tags(self):
-        self.assertTrue(PinFactory().tags.get(pk=1).name.startswith('tag_'))
+        tags = PinFactory.create().tags.all()
+        self.assertTrue(all([tag.name.startswith('tag_') for tag in tags]))
+        self.assertEqual(tags.count(), 1)
 
     def test_custom_tag(self):
         custom = 'custom_tag'
