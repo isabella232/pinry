@@ -1,0 +1,15 @@
+applications:
+- name: pinry
+  instances: 1
+  mem: 128
+  services:
+    ${name}-db:
+      type: mysql
+  stackato:
+    hooks:
+      post-staging:
+      - python manage.py syncdb --noinput
+      - python manage.py migrate --noinput
+    ignores:
+    - dev.db
+    - .git
